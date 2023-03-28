@@ -82,3 +82,29 @@ physx::PxRigidDynamic* PhysXPhysics::createCube(float scale, glm::vec3 position,
     cubeShape->release();
     return cubeActor;
 }
+
+physx::PxRigidStatic* PhysXPhysics::createStaticCube(float scale, glm::vec3 position, glm::quat rotation)
+{
+    physx::PxVec3 halfExtents(scale / 2.f, scale / 2.f, scale / 2.f);
+    physx::PxTransform transform(physx::PxVec3(position.x, position.y, position.z), physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+    physx::PxShape* cubeShape = mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *mMaterial);
+    physx::PxRigidStatic* cubeActor = mPhysics->createRigidStatic(transform);
+    cubeActor->attachShape(*cubeShape);
+    mScene->addActor(*cubeActor);
+    cubeShape->release();
+    return cubeActor;
+
+}
+
+physx::PxRigidDynamic* PhysXPhysics::createCylinder(float radius, float halfHeight, glm::vec3 position, glm::quat rotation, float mass)
+{
+    physx::PxCapsuleGeometry cylinder(radius, halfHeight);
+    physx::PxTransform transform(physx::PxVec3(position.x, position.y, position.z), physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+    physx::PxShape* cylinderShape = mPhysics->createShape(cylinder, *mMaterial);
+    physx::PxRigidDynamic* cylinderActor = mPhysics->createRigidDynamic(transform);
+    cylinderActor->attachShape(*cylinderShape);
+    physx::PxRigidBodyExt::updateMassAndInertia(*cylinderActor, mass);
+    mScene->addActor(*cylinderActor);
+    cylinderShape->release();
+    return cylinderActor;
+}

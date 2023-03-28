@@ -17,6 +17,8 @@ public:
 	void createScene();
 	physx::PxRigidDynamic* createSphere(float radius, glm::vec3 position, float mass);
 	physx::PxRigidDynamic* createCube(float scale, glm::vec3 position, glm::quat rotation, float mass);
+	physx::PxRigidStatic* createStaticCube(float scale, glm::vec3 position, glm::quat rotation);
+	physx::PxRigidDynamic* createCylinder(float radius, float halfHeight, glm::vec3 position, glm::quat rotation, float mass);
 
 	physx::PxPhysics* mPhysics = NULL;
 	physx::PxScene* mScene = NULL;

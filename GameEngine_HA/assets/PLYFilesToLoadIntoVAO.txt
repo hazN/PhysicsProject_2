@@ -30,4 +30,6 @@ assets/models/ISO_Shphere_flat_4div_xyz_n_rgba_uv.ply
 ISO_Sphere_2
 assets/models/car.ply
 Car
+assets/models/Cylinder.ply
+Cylinder
 EOF
