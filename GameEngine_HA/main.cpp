@@ -745,6 +745,7 @@ int main(int argc, char* argv[])
 		cube1->friendlyName = "StaticCube";
 		cube1->isWireframe = false;
 		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = glm::quat(glm::vec3(0.f, glm::radians(45.f), 0.f));
 		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 		cube1->position = glm::vec3(-16.f, 0.f, 16.f);
 		cube1->SetUniformScale(4.f);
@@ -758,6 +759,7 @@ int main(int argc, char* argv[])
 		cube1->friendlyName = "StaticCube";
 		cube1->isWireframe = false;
 		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = glm::quat(glm::vec3(0.f, glm::radians(65.f), 0.f));
 		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 		cube1->position = glm::vec3(-20.f, 0.f, 20.f);
 		cube1->SetUniformScale(2.f);
@@ -771,6 +773,7 @@ int main(int argc, char* argv[])
 		cube1->friendlyName = "StaticCube";
 		cube1->isWireframe = false;
 		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = glm::quat(glm::vec3(0.f, glm::radians(15.f), 0.f));
 		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 		cube1->position = glm::vec3(-10.f, 0.f, 6.f);
 		cube1->SetUniformScale(6.f);
@@ -783,6 +786,7 @@ int main(int argc, char* argv[])
 		cube1->meshName = "Cube";
 		cube1->friendlyName = "StaticCube";
 		cube1->isWireframe = false;
+		cube1->qRotation = glm::quat(glm::vec3(0.f, glm::radians(73.f),0.f));
 		cube1->bUse_RGBA_colour = true;
 		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 		cube1->position = glm::vec3(-28.f, 0.f, 10.f);
@@ -833,6 +837,7 @@ int main(int argc, char* argv[])
 	}
 	while (!glfwWindowShouldClose(window))
 	{
+		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		physics->Update();
 		for (GameObject* go : gameObjects)
 		{
@@ -850,6 +855,42 @@ int main(int argc, char* argv[])
 			glm::vec3 direction(0.f);
 			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
 			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
+			if (glfwGetKey(window, GLFW_KEY_KP_0))
+			{
+				physics->Reset();
+			}
+			if (glfwGetKey(window, GLFW_KEY_KP_1) && duration > 0.3f)
+			{
+				glm::vec3 minBounds = glm::vec3(0.f, 5.f, -32.f);
+				glm::vec3 maxBounds = glm::vec3(32.f, 5.f, 0.f);
+				glm::vec2 radius = glm::vec2(0.25f, 1.5f);
+				glm::vec2 mass = glm::vec2(1.f, 25.f);
+				deltaTime = std::clock();
+				// Seed rand
+				std::srand(time(nullptr));
+
+				// Random position between two bounds
+				float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
+				float y = (float)(std::rand() % (int)(maxBounds.y - minBounds.y + 1) + minBounds.y);
+				float z = (float)(std::rand() % (int)(maxBounds.z - minBounds.z + 1) + minBounds.z);
+				glm::vec3 position(x, y, z);
+
+				// Random radius and mass using the vec2.x and y as the bounds
+				float r = (float)(std::rand() % (int)(radius.y - radius.x + 1) + radius.x);
+				float m = (float)(std::rand() % (int)(mass.y - mass.x + 1) + mass.x);
+
+				physx::PxRigidDynamic* randBall = physics->createSphere(r, position, m);
+				//physx::PxRigidDynamic* randBall = physics->createRandomSphere(glm::vec2(0.25f, 1.5f), glm::vec3(0.f, 5.f, -32.f), glm::vec3(32.f, 5.f, 0.f), glm::vec2(1.f, 20.f));
+				cMeshObject* ball = new cMeshObject();
+				ball->meshName = "ISO_Sphere_1";
+				ball->friendlyName = "randomBall";
+				ball->isWireframe = false;
+				ball->bUse_RGBA_colour = true;
+				ball->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+				ball->SetUniformScale(r);
+				g_pMeshObjects.push_back(ball);
+				gameObjects.push_back(new GameObject(randBall, ball));
+			}
 			if (glfwGetKey(window, GLFW_KEY_UP))
 			{
 				direction -= forwardVector * 1.f;
@@ -872,7 +913,6 @@ int main(int argc, char* argv[])
 			//physicObjects[ballIndex]->rigidBody->ApplyForce(direction * force);
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
-		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		// Mouse Lookaround
 		if (!menuMode && theEditMode != PHYSICS_TEST)
 			mouse_camera_update(window);

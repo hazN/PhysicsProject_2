@@ -5,6 +5,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
+#include <vector>
+#include <map>
 class PhysXPhysics
 {
 public:
@@ -13,9 +15,11 @@ public:
 	void Initialize();
 	void ShutDown();
 	void Update();
+	void Reset();
 
 	void createScene();
 	physx::PxRigidDynamic* createSphere(float radius, glm::vec3 position, float mass);
+	physx::PxRigidDynamic* createRandomSphere(glm::vec2 radius, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 mass);
 	physx::PxRigidDynamic* createCube(float scale, glm::vec3 position, glm::quat rotation, float mass);
 	physx::PxRigidStatic* createStaticCube(float scale, glm::vec3 position, glm::quat rotation);
 	physx::PxRigidDynamic* createCylinder(float radius, float halfHeight, glm::vec3 position, glm::quat rotation, float mass);
@@ -32,4 +36,6 @@ private:
 	physx::PxFoundation* mFoundation = NULL;
 	physx::PxPvdTransport* mTransport;
 	physx::PxPvd* mPvd = NULL;
+	std::vector<physx::PxRigidActor*> mActors;
+	std::map<physx::PxRigidActor*, physx::PxTransform> mOriginalTransforms;
 };
