@@ -58,6 +58,19 @@ void PhysXPhysics::Reset()
 	}
 }
 
+void PhysXPhysics::removeActor(physx::PxRigidActor* actorToDelete)
+{
+	for (size_t i = 0; i < mActors.size(); i++)
+	{
+		if (mActors[i] == actorToDelete)
+		{
+			mActors[i]->release();
+			mActors.erase(mActors.begin() + i);
+			return;
+		}
+	}
+}
+
 void PhysXPhysics::createScene()
 {
 	// Create the ground
@@ -84,34 +97,6 @@ physx::PxRigidDynamic* PhysXPhysics::createSphere(float radius, glm::vec3 positi
 	sphereShape->release();
 	return sphereActor;
 }
-
-physx::PxRigidDynamic* PhysXPhysics::createRandomSphere(glm::vec2 radius, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 mass)
-{
-	// Seed rand
-	std::srand(time(nullptr));
-
-	// Random position between two bounds
-	float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
-	float y = (float)(std::rand() % (int)(maxBounds.y - minBounds.y + 1) + minBounds.y);
-	float z = (float)(std::rand() % (int)(maxBounds.z - minBounds.z + 1) + minBounds.z);
-	physx::PxVec3 position(x, y, z);
-
-	// Random radius and mass using the vec2.x and y as the bounds
-	float r = (float)(std::rand() % (int)(radius.y - radius.x + 1) + radius.x);
-	float m = (float)(std::rand() % (int)(mass.y - mass.x + 1) + mass.x);
-
-	// Create Actor
-	physx::PxTransform sphereTransform(physx::PxVec3(position.x, position.y, position.z));
-	physx::PxShape* sphereShape = mPhysics->createShape(physx::PxSphereGeometry(r), *mMaterial);
-	physx::PxRigidDynamic* sphereActor = mPhysics->createRigidDynamic(sphereTransform);
-	sphereActor->attachShape(*sphereShape);
-	physx::PxRigidBodyExt::updateMassAndInertia(*sphereActor, m);
-	mActors.push_back(sphereActor);
-	mScene->addActor(*sphereActor);
-	sphereShape->release();
-	return sphereActor;
-}
-
 
 physx::PxRigidDynamic* PhysXPhysics::createCube(float scale, glm::vec3 position, glm::quat rotation, float mass)
 {

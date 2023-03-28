@@ -16,10 +16,9 @@ public:
 	void ShutDown();
 	void Update();
 	void Reset();
-
+	void removeActor(physx::PxRigidActor* actorToDelete);
 	void createScene();
 	physx::PxRigidDynamic* createSphere(float radius, glm::vec3 position, float mass);
-	physx::PxRigidDynamic* createRandomSphere(glm::vec2 radius, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 mass);
 	physx::PxRigidDynamic* createCube(float scale, glm::vec3 position, glm::quat rotation, float mass);
 	physx::PxRigidStatic* createStaticCube(float scale, glm::vec3 position, glm::quat rotation);
 	physx::PxRigidDynamic* createCylinder(float radius, float halfHeight, glm::vec3 position, glm::quat rotation, float mass);

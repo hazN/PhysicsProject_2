@@ -48,6 +48,7 @@
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
 std::vector<GameObject*> gameObjects;
+std::vector<GameObject*> randomBalls;
 extern int ballIndex;
 cBasicTextureManager* g_pTextureManager = NULL;
 cCommandScheduler* g_scheduler = new cCommandScheduler;
@@ -534,15 +535,6 @@ int main(int argc, char* argv[])
 	pBall->SetUniformScale(1);
 	g_pMeshObjects.push_back(pBall);
 
-	cMeshObject* pBall2 = new cMeshObject();
-	pBall2->meshName = "ISO_Sphere_1";
-	pBall2->friendlyName = "Ball2";
-	pBall2->bUse_RGBA_colour = true;
-	pBall2->RGBA_colour = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-	pBall2->isWireframe = false;
-	pBall2->SetUniformScale(0.5f);
-	g_pMeshObjects.push_back(pBall2);
-
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -710,11 +702,11 @@ int main(int argc, char* argv[])
 	PhysXPhysics* physics = new PhysXPhysics();
 	physics->Initialize();
 	physics->createScene();
-	physx::PxRigidDynamic* ball1Actor = physics->createSphere(0.5f, glm::vec3(0.0f, 1.0f, 0.0f), 10.f);
+	//physx::PxRigidDynamic* ball1Actor = physics->createSphere(0.5f, glm::vec3(0.0f, 1.0f, 0.0f), 10.f);
 	physx::PxRigidDynamic* ball2Actor = physics->createSphere(1.f, glm::vec3(1.0f, 1.0f, 0.0f), 30.f);
 	GameObject* PlayerBall = new GameObject(ball2Actor, pBall);
 	gameObjects.push_back(PlayerBall);
-	gameObjects.push_back(new GameObject(ball1Actor, pBall2));
+	//gameObjects.push_back(new GameObject(ball1Actor, pBall2));
 	// Stacked cubes
 	glm::vec3 center = glm::vec3(16.0f, 0.0f, 16.0f);
 	float spacing = 2.1f;
@@ -849,14 +841,31 @@ int main(int argc, char* argv[])
 				//go->mesh->scaleXYZ = pos.q.getBasisVector0() * pos.scale.x;
 			}
 		}
+		for (GameObject* go : randomBalls)
+		{
+			if (go->rigidBody)
+			{
+				physx::PxTransform pos = go->rigidBody->getGlobalPose();
+				go->mesh->position = glm::vec3(pos.p.x, pos.p.y, pos.p.z);
+				go->mesh->qRotation = glm::quat(pos.q.w, pos.q.x, pos.q.y, pos.q.z);
+			}
+		}
 		// Doing this here to get a faster reponse time
 		{
 			float force = 0.1f;
 			glm::vec3 direction(0.f);
 			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
 			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
-			if (glfwGetKey(window, GLFW_KEY_KP_0))
+			if (glfwGetKey(window, GLFW_KEY_KP_0) && duration > 0.3f)
 			{
+				deltaTime = std::clock();
+				for (GameObject* go : randomBalls)
+				{
+					delete go->mesh;
+					physics->removeActor(go->rigidBody);
+					go->mesh = nullptr;
+					go->rigidBody = nullptr;
+				}
 				physics->Reset();
 			}
 			if (glfwGetKey(window, GLFW_KEY_KP_1) && duration > 0.3f)
@@ -866,20 +875,18 @@ int main(int argc, char* argv[])
 				glm::vec2 radius = glm::vec2(0.25f, 1.5f);
 				glm::vec2 mass = glm::vec2(1.f, 25.f);
 				deltaTime = std::clock();
-				// Seed rand
-				std::srand(time(nullptr));
+
 
 				// Random position between two bounds
 				float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
 				float y = (float)(std::rand() % (int)(maxBounds.y - minBounds.y + 1) + minBounds.y);
 				float z = (float)(std::rand() % (int)(maxBounds.z - minBounds.z + 1) + minBounds.z);
 				glm::vec3 position(x, y, z);
-
 				// Random radius and mass using the vec2.x and y as the bounds
-				float r = (float)(std::rand() % (int)(radius.y - radius.x + 1) + radius.x);
-				float m = (float)(std::rand() % (int)(mass.y - mass.x + 1) + mass.x);
+				float rad = ((float)std::rand() / RAND_MAX) * (radius.y - radius.x) + radius.x;
+				float m = ((float)std::rand() / RAND_MAX) * (mass.y - mass.x) + mass.x;
 
-				physx::PxRigidDynamic* randBall = physics->createSphere(r, position, m);
+				physx::PxRigidDynamic* randBall = physics->createSphere(rad, position, m);
 				//physx::PxRigidDynamic* randBall = physics->createRandomSphere(glm::vec2(0.25f, 1.5f), glm::vec3(0.f, 5.f, -32.f), glm::vec3(32.f, 5.f, 0.f), glm::vec2(1.f, 20.f));
 				cMeshObject* ball = new cMeshObject();
 				ball->meshName = "ISO_Sphere_1";
@@ -887,9 +894,8 @@ int main(int argc, char* argv[])
 				ball->isWireframe = false;
 				ball->bUse_RGBA_colour = true;
 				ball->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-				ball->SetUniformScale(r);
-				g_pMeshObjects.push_back(ball);
-				gameObjects.push_back(new GameObject(randBall, ball));
+				ball->SetUniformScale(rad);
+				randomBalls.push_back(new GameObject(randBall, ball));
 			}
 			if (glfwGetKey(window, GLFW_KEY_UP))
 			{
@@ -968,6 +974,20 @@ int main(int argc, char* argv[])
 		// We draw everything in our "scene"
 		// In other words, go throug the vec_pMeshObjects container
 		//  and draw each one of the objects
+		// Separate from main draw so its easier to clear them
+		for (GameObject* go : randomBalls)
+		{
+			// The parent's model matrix is set to the identity
+			glm::mat4x4 matModel = glm::mat4x4(1.0f);
+
+			// All the drawing code has been moved to the DrawObject function
+			if (go->mesh == nullptr)
+				continue;
+			DrawObject(go->mesh,
+				matModel,
+				shaderID, ::g_pTextureManager,
+				pVAOManager, mModel_location, mModelInverseTransform_location);
+		}
 		for (std::vector< cMeshObject* >::iterator itCurrentMesh = g_pMeshObjects.begin();
 			itCurrentMesh != g_pMeshObjects.end();
 			itCurrentMesh++)
