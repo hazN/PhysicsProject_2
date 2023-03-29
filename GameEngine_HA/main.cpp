@@ -747,7 +747,7 @@ int main(int argc, char* argv[])
 	for (int x = 0; x <= 3; x++) {
 		for (int y = 0; y <= 3; y++) {
 			glm::vec3 position = center + glm::vec3(x * spacing, y * 4.f, 0.0f);
-		//	physx::PxRigidDynamic* boxActor = physics->createCube(scale, position, glm::quat(glm::vec3(0)), mass);
+			//	physx::PxRigidDynamic* boxActor = physics->createCube(scale, position, glm::quat(glm::vec3(0)), mass);
 			iShape* cubeShape = new BoxShape(Vector3(scale / 2));
 			RigidBodyDesc desc;
 			desc.isStatic = false;
@@ -769,7 +769,7 @@ int main(int argc, char* argv[])
 			world->AddBody(go->rigidBody);
 		}
 	}
-	
+
 	// Static cubes
 	{
 		float scale = 4.f;
@@ -781,7 +781,7 @@ int main(int argc, char* argv[])
 		desc.position = position;
 		desc.linearVelocity = glm::vec3(0.f);
 		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale/2.f));
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
 		cMeshObject* cube1 = new cMeshObject();
 		cube1->meshName = "Cube";
 		cube1->friendlyName = "StaticCube";
@@ -796,7 +796,7 @@ int main(int argc, char* argv[])
 		gameObjects.push_back(go);
 		world->AddBody(go->rigidBody);
 	}
-	{		
+	{
 		float scale = 2.f;
 		glm::vec3 position = glm::vec3(-20.f, 0.f, 20.f);
 		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(65.f), 0.f));
@@ -934,6 +934,9 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
+	g_cameraEye = glm::vec3(1.f, 150, 0.f);
+	theEditMode = PHYSICS_TEST;
 	while (!glfwWindowShouldClose(window))
 	{
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -961,7 +964,10 @@ int main(int argc, char* argv[])
 		}
 		// Doing this here to get a faster reponse time
 		{
-			float force = 0.1f;
+			float force;
+			if (theEditMode == PHYSICS_TEST)
+				force = 3.f;
+			else force = 0.1f;
 			glm::vec3 direction(0.f);
 			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
 			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
@@ -984,7 +990,6 @@ int main(int argc, char* argv[])
 				glm::vec2 radius = glm::vec2(0.25f, 1.5f);
 				glm::vec2 mass = glm::vec2(1.f, 25.f);
 				deltaTime = std::clock();
-
 
 				// Random position between two bounds
 				float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
@@ -1015,27 +1020,45 @@ int main(int argc, char* argv[])
 				world->AddBody(go->rigidBody);
 				randomBalls.push_back(go);
 			}
-			if (glfwGetKey(window, GLFW_KEY_UP))
+			if (theEditMode == PHYSICS_TEST)
 			{
-				direction -= forwardVector * 1.f;
+				if (glfwGetKey(window, GLFW_KEY_W))
+				{
+					direction -= forwardVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_S))
+				{
+					direction += forwardVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_A))
+				{
+					direction += rightVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_D))
+				{
+					direction -= rightVector * 1.f;
+				}
 			}
-			if (glfwGetKey(window, GLFW_KEY_DOWN))
+			else
 			{
-				direction += forwardVector * 1.f;
+				if (glfwGetKey(window, GLFW_KEY_UP))
+				{
+					direction -= forwardVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_DOWN))
+				{
+					direction += forwardVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_LEFT))
+				{
+					direction += rightVector * 1.f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_RIGHT))
+				{
+					direction -= rightVector * 1.f;
+				}
 			}
-			if (glfwGetKey(window, GLFW_KEY_LEFT))
-			{
-				direction += rightVector * 1.f;
-			}
-			if (glfwGetKey(window, GLFW_KEY_RIGHT))
-			{
-				direction -= rightVector * 1.f;
-			}
-			//add to ballactor2 force from direction
-			//physx::PxVec3 forceVec(direction.x* force, direction.y* force, direction.z* force);
 			PlayerBall->rigidBody->ApplyForce(Vector3(direction.x * force, direction.y * force, direction.z * force));
-			//ball2Actor->addForce(forceVec, physx::PxForceMode::eACCELERATION);
-			//physicObjects[ballIndex]->rigidBody->ApplyForce(direction * force);
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		// Mouse Lookaround
