@@ -37,17 +37,15 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "cBasicTextureManager.h"
 #include "GenerateDungeon.h"
-//#include "PhysXPhysics.h"
 #include "GameObject/GameObject.h"
+
 #include <Interface/iPhysicsFactory.h>
 #include <Interface/SphereShape.h>
 #include <Interface/BoxShape.h>
 #include <Interface/CylinderShape.h>
 #include <Interface/PlaneShape.h>
 #include <physics/physx/PhysicsFactory.h>
-//#include <GDPPhysics/gdp/PhysicsFactory.h>
-//#include <GDPPhysics/gdp/PhysicsWorld.h>
-//#include <GDPPhysics/gdp/CollisionListener.h>
+
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
 std::vector<GameObject*> gameObjects;
