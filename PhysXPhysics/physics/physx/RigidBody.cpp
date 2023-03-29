@@ -1,6 +1,9 @@
 #include "RigidBody.h"
 
 #include "Conversion.h"
+#include <Interface/BoxShape.h>
+#include <Interface/SphereShape.h>
+#include <Interface/CylinderShape.h>
 
 namespace physics
 {
@@ -33,27 +36,29 @@ namespace physics
 			m_InvMass = 1.f / m_Mass;
 		}
 		// will add if statements to check shape
-		physx::PxRigidDynamic* rigidActor;
-		physx::PxTransform transform(physx::PxVec3(desc.position.x, desc.position.y, desc.position.z));
+		physx::PxRigidActor* rigidActor;
+		physx::PxTransform transform(physx::PxVec3(desc.position.x, desc.position.y, desc.position.z), physx::PxQuat(desc.rotation.x, desc.rotation.y, desc.rotation.z, desc.rotation.w));
 		if (m_Shape->GetShapeType() == ShapeType::Sphere)
-			pShape = _world->mPhysics->createShape(physx::PxSphereGeometry(desc.mass), *_world->mMaterial);
+		{
+			SphereShape* sphereShape = (SphereShape*)m_Shape;
+			pShape = _world->mPhysics->createShape(physx::PxSphereGeometry(sphereShape->GetRadius()), *_world->mMaterial);
+		}
 		else if (m_Shape->GetShapeType() == ShapeType::Box)
 		{
-			//physx::PxVec3 halfExtents(scale / 2.f, scale / 2.f, scale / 2.f);
-			//physx::PxTransform cubeTransform(physx::PxVec3(position.x, position.y, position.z), physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
-			//physx::PxShape* cubeShape = mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *mMaterial);
-			//physx::PxRigidDynamic* cubeActor = mPhysics->createRigidDynamic(cubeTransform);
-			//cubeActor->attachShape(*cubeShape);
-			//physx::PxRigidBodyExt::updateMassAndInertia(*cubeActor, mass);
-			//mActors.push_back(cubeActor);
-			//mOriginalTransforms.emplace(cubeActor, cubeTransform);
-			//mScene->addActor(*cubeActor);
-			//cubeShape->release();
+			BoxShape* boxShape = (BoxShape*)m_Shape;
+			physx::PxVec3 halfExtents(boxShape->GetHalfExtents().x, boxShape->GetHalfExtents().y, boxShape->GetHalfExtents().z);
+			pShape = _world->mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *_world->mMaterial);
+		}
+		else if (m_Shape->GetShapeType() == ShapeType::Cylinder)
+		{
+			CylinderShape* cylinderShape = (CylinderShape*)m_Shape;
+			pShape = _world->mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *_world->mMaterial);
 
 		}
-		rigidActor = _world->mPhysics->createRigidDynamic(transform);
+		if (m_IsStatic)
+			rigidActor = _world->mPhysics->createRigidStatic(transform);
+		else rigidActor = _world->mPhysics->createRigidDynamic(transform);
 		rigidActor->attachShape(*pShape);
-		physx::PxRigidBodyExt::updateMassAndInertia(*rigidActor, desc.mass);
 	}
 	RigidBody::~RigidBody(void)
 	{
@@ -102,7 +107,7 @@ namespace physics
 	glm::vec3 RigidBody::GetGLMPosition()
 	{
 		physx::PxTransform position = rigidBody->getGlobalPose();
-		glm::vec3 pos = glm::vec3(position.p.x, position.p.y, position.p.z);
+		return glm::vec3(position.p.x, position.p.y, position.p.z);
 	}
 	void RigidBody::SetRotation(const glm::quat& orientationIn)
 	{

@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 
 #include <physx/PxPhysicsAPI.h>
+#include <map>
 //#include <physx/foundation/PxFoundation.h>
 //#include <physx/foundation/PxErrorCallback.h>
 //#include <physx/foundation/PxAllocator.h>
@@ -58,18 +59,21 @@ namespace physics
 			m_CollisionListener = listener;
 		}
 
+		physx::PxPhysics* mPhysics = NULL;
+		physx::PxScene* mScene = NULL;
+		physx::PxMaterial* mMaterial = NULL;
 	private:
-		PxDefaultAllocator m_DefaultAllocatorCallback;
-		PxDefaultErrorCallback m_DefaultErrorCallback;
-		PxFoundation* m_Foundation = nullptr;
-		PxPhysics* m_Physics = nullptr;
-		PxDefaultCpuDispatcher* m_Dispatcher = nullptr;
-		PxScene* m_Scene = nullptr;
-		PxMaterial* m_Material = nullptr;
-		PxPvd* m_Pvd = nullptr;
-		PxPvdSceneClient* m_PVDClient = nullptr;
-		//PxTolerancesScale m_ToleranceScale;
-		//PxCooking* m_Cooking = nullptr;
+		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
+		physx::PxDefaultErrorCallback  mDefaultErrorCallback;
+		physx::PxDefaultCpuDispatcher* mDispatcher = NULL;
+		physx::PxTolerancesScale       mToleranceScale;
+
+		physx::PxFoundation* mFoundation = NULL;
+		physx::PxPvdTransport* mTransport;
+		physx::PxPvd* mPvd = NULL;
+		//std::map<iRigidBody*,physx::PxRigidActor*> mActors;
+		std::vector<iRigidBody*> mActors;
+		std::map<physx::PxRigidActor*, physx::PxTransform> mOriginalTransforms;
 
 		iCollisionListener* m_CollisionListener;
 

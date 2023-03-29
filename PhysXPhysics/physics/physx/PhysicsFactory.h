@@ -1,8 +1,8 @@
 #ifndef PhysicsFactory_H
 #define PhysicsFactory_H
 // Interface
-#include <physics/interfaces/iPhysicsFactory.h>
-#include <physics/interfaces/iRigidBody.h>
+#include <Interface/iPhysicsFactory.h>
+#include <Interface/iRigidBody.h>
 
 namespace physics
 {

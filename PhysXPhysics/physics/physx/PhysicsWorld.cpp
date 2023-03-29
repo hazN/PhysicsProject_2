@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <math.h>
+#include "RigidBody.h"
 
 //#include <pvd/PxPvd.h>
 //#include <extensions/PxSimpleFactory.h>
@@ -57,17 +58,44 @@ namespace physics
 
 	void PhysicsWorld::SetGravity(const Vector3& gravity)
 	{
-
 	}
 
 	void PhysicsWorld::AddBody(iCollisionBody* body)
 	{
-
+		if (body == nullptr)
+			return;
+		if (body->GetBodyType() == BodyType::RigidBody)
+		{
+			RigidBody* rigidBody = RigidBody::Cast(body);
+			mActors.push_back((iRigidBody*)rigidBody);
+			mScene->addActor(*rigidBody->rigidBody);
+			physx::PxTransform transform = rigidBody->rigidBody->getGlobalPose();
+			mOriginalTransforms.emplace(rigidBody->rigidBody, transform);
+			rigidBody->pShape->release();
+		}
 	}
+	//	//else if (body->GetBodyType() == BodyType::SoftBody)
+	//	//{
+	//	//	SoftBody* rigidBody = SoftBody::Cast(body);
+
+	//	//	if (std::find(m_SoftBodies.begin(), m_SoftBodies.end(), rigidBody) == m_SoftBodies.end())
+	//	//	{
+	//	//		m_SoftBodies.push_back(rigidBody);
+	//	//	}
+	//	//}
+	//}
 
 	void PhysicsWorld::RemoveBody(iCollisionBody* body)
 	{
-		mActors[(iRigidBody*)body]->release();
-		mActors.erase((iRigidBody*)body);
+		for (size_t i = 0; i < mActors.size(); i++)
+		{
+			if (mActors[i] == body)
+			{
+				RigidBody* bodyToDelete = (RigidBody*)mActors[i];
+				bodyToDelete->rigidBody->release();
+				mActors.erase(mActors.begin() + i);
+				delete body;
+			}
+		}
 	}
 };
