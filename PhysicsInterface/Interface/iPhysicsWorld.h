@@ -25,6 +25,7 @@ namespace physics
 
 		virtual void AddBody(iCollisionBody* body) = 0;
 		virtual void RemoveBody(iCollisionBody* body) = 0;
+		virtual void ResetWorld() = 0;
 
 		virtual void TimeStep(float dt) = 0;
 

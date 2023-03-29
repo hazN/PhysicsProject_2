@@ -102,15 +102,22 @@ namespace physics
 
 			}
 			if (rigidBody->IsStatic())
+			{
 				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidStatic(transform);
+				rigidBody->rigidBody->attachShape(*rigidBody->pShape);
+			}
 			else
-				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidDynamic(transform);
-			rigidBody->rigidBody->attachShape(*rigidBody->pShape);
+			{
+				//rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidDynamic(transform);
+				physx::PxRigidDynamic* rigidActor = mPhysics->createRigidDynamic(transform);
+				rigidActor->attachShape(*rigidBody->pShape);
+				physx::PxRigidBodyExt::updateMassAndInertia(*rigidActor, rigidBody->m_Mass);
+				rigidBody->rigidBody = rigidActor;
+			}
 			mActors.push_back((iRigidBody*)rigidBody);
 			mScene->addActor(*rigidBody->rigidBody);
 			mOriginalTransforms.emplace(rigidBody->rigidBody, transform);
 			rigidBody->pShape->release();
-
 		}
 	}
 	//	//else if (body->GetBodyType() == BodyType::SoftBody)
@@ -135,6 +142,18 @@ namespace physics
 				mActors.erase(mActors.begin() + i);
 				delete body;
 			}
+		}
+	}
+	void PhysicsWorld::ResetWorld()
+	{
+		// Loop through actors
+		for (iRigidBody* body : mActors)
+		{
+			RigidBody* actor = RigidBody::Cast(body);
+			physx::PxTransform originalTransform;
+			physx::PxVec3 originalVelocity;
+			originalTransform = mOriginalTransforms[actor->rigidBody];
+			actor->rigidBody->setGlobalPose(originalTransform);
 		}
 	}
 };

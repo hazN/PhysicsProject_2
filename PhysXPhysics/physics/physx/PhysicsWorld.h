@@ -53,6 +53,7 @@ namespace physics
 
 		virtual void AddBody(iCollisionBody* body) override;
 		virtual void RemoveBody(iCollisionBody* body) override;
+		virtual void ResetWorld() override;
 
 		virtual void RegisterCollisionListener(iCollisionListener* listener) override
 		{

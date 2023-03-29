@@ -45,10 +45,10 @@ namespace physics
 		physx::PxShape* pShape = nullptr;
 		Vector3 originalPosition;
 		Quaternion originalRotation;
+		float m_Mass;
 	protected:
 
 	private:
-		float m_Mass;
 		float m_InvMass;
 		float m_Friction;
 		float m_Restitution;

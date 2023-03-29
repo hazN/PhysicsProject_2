@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngine_HA", "GameEngine_HA\GameEngine_HA.vcxproj", "{8F3537B5-7792-4C63-9936-C42493C032FE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6CF1D937-9DEC-46DB-8FC5-9D19285EACA7} = {6CF1D937-9DEC-46DB-8FC5-9D19285EACA7}
+		{F0D37666-094E-44B8-A022-CB25C056C0C5} = {F0D37666-094E-44B8-A022-CB25C056C0C5}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysXPhysics", "PhysXPhysics\PhysXPhysics.vcxproj", "{6CF1D937-9DEC-46DB-8FC5-9D19285EACA7}"
 EndProject
