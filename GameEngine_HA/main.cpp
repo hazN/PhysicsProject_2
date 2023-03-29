@@ -55,6 +55,9 @@ std::vector<GameObject*> randomBalls;
 extern int ballIndex;
 cBasicTextureManager* g_pTextureManager = NULL;
 cCommandScheduler* g_scheduler = new cCommandScheduler;
+
+void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world);
+void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass);
 // Call back signatures here
 void mouse_camera_update(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -680,50 +683,23 @@ int main(int argc, char* argv[])
 	// GUI
 	ImGui::StyleColorsDark();
 	GUI EditGUI;
-	//// Physics
-	//g_engine.Initialize();
+
 	float deltaTime = std::clock();
 	float duration = 0;
 	//bool increase = true;
 	int increase = 1;
 	//pVAOManager->Load();
 
-	// Animations
-//	CarAnimations* car_animations = new CarAnimations;
-
-	//persistence::SaveModels(g_pMeshObjects);
-	//persistence::LoadAll(g_pMeshObjects, g_pTheLightManager->vecTheLights);
-
-	// Physics
-	//using namespace physics;
-	//iPhysicsFactory* physicsFactory = new PhysicsFactory;
-	//iPhysicsWorld* world = physicsFactory->CreateWorld();;
-	// Ground
-	//theEditMode = PHYSICS_TEST;
-	//iCollisionListener* listener = new CollisionListener;
-	//world->RegisterCollisionListener(listener);
+	// START OF PHYSICS
+	
+	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
 	iPhysicsFactory* _physicsFactory = new PhysicsFactory;
 	iPhysicsWorld* world = _physicsFactory->CreateWorld();;
 
-	//PhysXPhysics* physics = new PhysXPhysics();
-	//physics->Initialize();
-	//physics->createScene();
-	//physx::PxRigidDynamic* ball1Actor = physics->createSphere(0.5f, glm::vec3(0.0f, 1.0f, 0.0f), 10.f);
-	//physx::PxRigidDynamic* ball2Actor = physics->createSphere(1.f, glm::vec3(1.0f, 1.0f, 0.0f), 30.f);
-	//// create ground
-	//{
-	//	// Create the ground
-	//	//float platformSize = 32.0f;
-	//	//physx::PxVec3 platformDimensions(platformSize, 1.0f, platformSize);
-	//	//physx::PxTransform platformTransform(physx::PxVec3(0.0f, -1.0f, 0.0f));
-	//	//physx::PxShape* platformShape = mPhysics->createShape(physx::PxBoxGeometry(platformDimensions), *mMaterial);
-	//	//physx::PxRigidStatic* platformActor = mPhysics->createRigidStatic(platformTransform);
-	//	//platformActor->attachShape(*platformShape);
-	//	//mScene->addActor(*platformActor);
-	//	//platformShape->release();
-	//	cube
-	//}
+	// Create Scene
+	CreateScene(_physicsFactory, world);
+	// Create Player Ball
 	GameObject* PlayerBall = new GameObject();
 	PlayerBall->mesh = pBall;
 	{
@@ -739,209 +715,19 @@ int main(int argc, char* argv[])
 	}
 	world->AddBody(PlayerBall->rigidBody);
 	gameObjects.push_back(PlayerBall);
-	//gameObjects.push_back(new GameObject(ball1Actor, pBall2));
-	// Stacked cubes
-	glm::vec3 center = glm::vec3(16.0f, 0.0f, 16.0f);
-	float spacing = 2.1f;
-	float scale = 2.f;
-	for (int x = 0; x <= 3; x++) {
-		for (int y = 0; y <= 3; y++) {
-			glm::vec3 position = center + glm::vec3(x * spacing, y * 4.f, 0.0f);
-			//	physx::PxRigidDynamic* boxActor = physics->createCube(scale, position, glm::quat(glm::vec3(0)), mass);
-			iShape* cubeShape = new BoxShape(Vector3(scale / 2));
-			RigidBodyDesc desc;
-			desc.isStatic = false;
-			desc.mass = 1.0f;
-			desc.position = position;
-			desc.linearVelocity = glm::vec3(0.f);
-			desc.rotation = glm::quat(glm::vec3(0));
-			cMeshObject* box = new cMeshObject();
-			box->meshName = "Cube";
-			box->friendlyName = "Cube" + x + ':' + y;
-			box->isWireframe = false;
-			box->bUse_RGBA_colour = true;
-			box->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-			box->position = position;
-			box->SetUniformScale(scale);
-			g_pMeshObjects.push_back(box);
-			GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), box);
-			gameObjects.push_back(go);
-			world->AddBody(go->rigidBody);
-		}
-	}
 
-	// Static cubes
-	{
-		float scale = 4.f;
-		glm::vec3 position = glm::vec3(-16.f, 0.f, 16.f);
-		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(45.f), 0.f));
-		RigidBodyDesc desc;
-		desc.isStatic = true;
-		desc.mass = 0.f;
-		desc.position = position;
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
-		cMeshObject* cube1 = new cMeshObject();
-		cube1->meshName = "Cube";
-		cube1->friendlyName = "StaticCube";
-		cube1->isWireframe = false;
-		cube1->bUse_RGBA_colour = true;
-		cube1->qRotation = rotation;
-		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-		cube1->position = position;
-		cube1->SetUniformScale(scale);
-		g_pMeshObjects.push_back(cube1);
-		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
-		gameObjects.push_back(go);
-		world->AddBody(go->rigidBody);
-	}
-	{
-		float scale = 2.f;
-		glm::vec3 position = glm::vec3(-20.f, 0.f, 20.f);
-		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(65.f), 0.f));
-		RigidBodyDesc desc;
-		desc.isStatic = true;
-		desc.mass = 0.f;
-		desc.position = position;
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
-		cMeshObject* cube1 = new cMeshObject();
-		cube1->meshName = "Cube";
-		cube1->friendlyName = "StaticCube";
-		cube1->isWireframe = false;
-		cube1->bUse_RGBA_colour = true;
-		cube1->qRotation = rotation;
-		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-		cube1->position = position;
-		cube1->SetUniformScale(scale);
-		g_pMeshObjects.push_back(cube1);
-		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
-		gameObjects.push_back(go);
-		world->AddBody(go->rigidBody);
-	}
-	{
-		float scale = 6.f;
-		glm::vec3 position = glm::vec3(-10.f, 0.f, 6.f);
-		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(15.f), 0.f));
-		RigidBodyDesc desc;
-		desc.isStatic = true;
-		desc.mass = 0.f;
-		desc.position = position;
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
-		cMeshObject* cube1 = new cMeshObject();
-		cube1->meshName = "Cube";
-		cube1->friendlyName = "StaticCube";
-		cube1->isWireframe = false;
-		cube1->bUse_RGBA_colour = true;
-		cube1->qRotation = rotation;
-		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-		cube1->position = position;
-		cube1->SetUniformScale(scale);
-		g_pMeshObjects.push_back(cube1);
-		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
-		gameObjects.push_back(go);
-		world->AddBody(go->rigidBody);
-	}
 
-	{
-		float scale = 3.f;
-		glm::vec3 position = glm::vec3(-28.f, 0.f, 10.f);
-		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(73.f), 0.f));
-		RigidBodyDesc desc;
-		desc.isStatic = true;
-		desc.mass = 0.f;
-		desc.position = position;
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
-		cMeshObject* cube1 = new cMeshObject();
-		cube1->meshName = "Cube";
-		cube1->friendlyName = "StaticCube";
-		cube1->isWireframe = false;
-		cube1->qRotation = rotation;
-		cube1->bUse_RGBA_colour = true;
-		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-		cube1->position = position;
-		cube1->SetUniformScale(scale);
-		g_pMeshObjects.push_back(cube1);
-		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
-		gameObjects.push_back(go);
-		world->AddBody(go->rigidBody);
-	}
-
-	{
-		float scale = 3.f;
-		glm::vec3 position = glm::vec3(-10.f, 0.f, 28.f);
-		glm::quat rotation = glm::quat(glm::vec3(0.f, 0.f, 0.f));
-		RigidBodyDesc desc;
-		desc.isStatic = true;
-		desc.mass = 0.f;
-		desc.position = position;
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = rotation;
-		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
-		cMeshObject* cube1 = new cMeshObject();
-		cube1->meshName = "Cube";
-		cube1->friendlyName = "StaticCube";
-		cube1->isWireframe = false;
-		cube1->bUse_RGBA_colour = true;
-		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-		cube1->position = position;
-		cube1->SetUniformScale(scale);
-		g_pMeshObjects.push_back(cube1);
-		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
-		gameObjects.push_back(go);
-		world->AddBody(go->rigidBody);
-	}
-	{
-		// Triangle of cylinders
-		glm::vec3 center = glm::vec3(-20.0f, 0.0f, -20.0f);
-		float spacing = 3.0f;
-		float scale = 1.f;
-		float mass = 15.0f;
-		float halfheight = 0.5f;
-		int numRows = 4;
-		for (int i = 0; i < numRows; i++) {
-			for (int j = 0; j < i + 1; j++) {
-				float xPos = center.x + j * spacing - i * spacing * 0.5f;
-				float yPos = center.y;
-				float zPos = center.z + i * spacing;
-				glm::vec3 position = glm::vec3(xPos, yPos, zPos);
-				RigidBodyDesc desc;
-				desc.isStatic = false;
-				desc.mass = mass;
-				desc.position = position;
-				desc.linearVelocity = glm::vec3(0.f);
-				desc.rotation = glm::quat(glm::vec3(0));
-				iShape* cylinderShape = new CylinderShape(Vector3(scale, halfheight, scale));
-				cMeshObject* cylinder = new cMeshObject();
-				cylinder->meshName = "Cylinder";
-				cylinder->friendlyName = "Cylinder_" + std::to_string(i) + "_" + std::to_string(j);
-				cylinder->isWireframe = false;
-				cylinder->bUse_RGBA_colour = true;
-				cylinder->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-				cylinder->qRotation = glm::quat(glm::vec3(0));
-				cylinder->position = position;
-				cylinder->SetUniformScale(scale);
-				g_pMeshObjects.push_back(cylinder);
-				GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cylinderShape), cylinder);
-				gameObjects.push_back(go);
-				world->AddBody(go->rigidBody);
-			}
-		}
-	}
+	
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	theEditMode = PHYSICS_TEST;
 	while (!glfwWindowShouldClose(window))
 	{
-		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+		// Update physics world
 		world->TimeStep(1.f);
-		//physics->Update();
+
+		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+		// Update each object to match its rigidbodies transform
 		for (GameObject* go : gameObjects)
 		{
 			if (go->rigidBody)
@@ -962,18 +748,23 @@ int main(int argc, char* argv[])
 				go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
 			}
 		}
+
 		// Doing this here to get a faster reponse time
+		// Keypresses
 		{
 			float force;
+			// Force needs to be higher since the forward vector will be weaker with a topdown camera
 			if (theEditMode == PHYSICS_TEST)
 				force = 3.f;
 			else force = 0.1f;
 			glm::vec3 direction(0.f);
 			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
 			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
+			// Reset world/objects to original position
 			if (glfwGetKey(window, GLFW_KEY_KP_0) && duration > 0.3f)
 			{
 				deltaTime = std::clock();
+				// Delete all the random generated balls
 				for (GameObject* go : randomBalls)
 				{
 					delete go->mesh;
@@ -983,6 +774,7 @@ int main(int argc, char* argv[])
 				}
 				world->ResetWorld();
 			}
+			// Spawn a random ball
 			if (glfwGetKey(window, GLFW_KEY_KP_1) && duration > 0.3f)
 			{
 				glm::vec3 minBounds = glm::vec3(0.f, 5.f, -32.f);
@@ -991,35 +783,9 @@ int main(int argc, char* argv[])
 				glm::vec2 mass = glm::vec2(1.f, 25.f);
 				deltaTime = std::clock();
 
-				// Random position between two bounds
-				float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
-				float y = (float)(std::rand() % (int)(maxBounds.y - minBounds.y + 1) + minBounds.y);
-				float z = (float)(std::rand() % (int)(maxBounds.z - minBounds.z + 1) + minBounds.z);
-				glm::vec3 position(x, y, z);
-				// Random radius and mass using the vec2.x and y as the bounds
-				float rad = ((float)std::rand() / RAND_MAX) * (radius.y - radius.x) + radius.x;
-				float m = ((float)std::rand() / RAND_MAX) * (mass.y - mass.x) + mass.x;
-
-				iShape* ballShape = new SphereShape(rad);
-
-				RigidBodyDesc desc;
-				desc.isStatic = false;
-				desc.mass = m;
-				desc.position = position;
-				desc.linearVelocity = glm::vec3(0.f);
-				desc.rotation = glm::quat(glm::vec3(0));
-
-				cMeshObject* ball = new cMeshObject();
-				ball->meshName = "ISO_Sphere_1";
-				ball->friendlyName = "randomBall";
-				ball->isWireframe = false;
-				ball->bUse_RGBA_colour = true;
-				ball->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-				ball->SetUniformScale(rad);
-				GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, ballShape), ball);
-				world->AddBody(go->rigidBody);
-				randomBalls.push_back(go);
+				CreateRandomSphere(_physicsFactory, world, minBounds, maxBounds, radius, mass);
 			}
+			// Different keyset based on the camera being used
 			if (theEditMode == PHYSICS_TEST)
 			{
 				if (glfwGetKey(window, GLFW_KEY_W))
@@ -1058,6 +824,7 @@ int main(int argc, char* argv[])
 					direction -= rightVector * 1.f;
 				}
 			}
+			// Apply force to the rigidbody
 			PlayerBall->rigidBody->ApplyForce(Vector3(direction.x * force, direction.y * force, direction.z * force));
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
@@ -1078,6 +845,7 @@ int main(int argc, char* argv[])
 
 		glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
+		// Different matview based on camera being used
 		if (theEditMode == PHYSICS_TEST)
 		{
 			matView = glm::lookAt(::g_cameraEye,
@@ -1379,4 +1147,243 @@ void DrawConcentricDebugLightObjects(void)
 		pDebugSphere_5->position = glm::vec3(::g_pTheLightManager->vecTheLights[currentLight].position);
 	}
 	return;
+}
+// Create all the objects apart of the scene
+// code is here to clean up the main method a bit
+void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world)
+{
+	{
+		float platformSize = 32.f;
+		iShape* platformShape = new BoxShape(Vector3(platformSize, 5.f, platformSize));
+		RigidBodyDesc platformDesc;
+		platformDesc.isStatic = true;
+		platformDesc.position = Vector3(0.0f, -7.5f, 0.0f);
+		world->AddBody(_physicsFactory->CreateRigidBody(platformDesc, platformShape));
+	}
+	// Stacked cubes
+	glm::vec3 center = glm::vec3(16.0f, 0.0f, 16.0f);
+	float spacing = 2.1f;
+	float scale = 2.f;
+	for (int x = 0; x <= 3; x++) {
+		for (int y = 0; y <= 3; y++) {
+			glm::vec3 position = center + glm::vec3(x * spacing, y * 4.f, 0.0f);
+			//	physx::PxRigidDynamic* boxActor = physics->createCube(scale, position, glm::quat(glm::vec3(0)), mass);
+			iShape* cubeShape = new BoxShape(Vector3(scale / 2));
+			RigidBodyDesc desc;
+			desc.isStatic = false;
+			desc.mass = 1.0f;
+			desc.position = position;
+			desc.linearVelocity = glm::vec3(0.f);
+			desc.rotation = glm::quat(glm::vec3(0));
+			cMeshObject* box = new cMeshObject();
+			box->meshName = "Cube";
+			box->friendlyName = "Cube" + x + ':' + y;
+			box->isWireframe = false;
+			box->bUse_RGBA_colour = true;
+			box->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+			box->position = position;
+			box->SetUniformScale(scale);
+			g_pMeshObjects.push_back(box);
+			GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), box);
+			gameObjects.push_back(go);
+			world->AddBody(go->rigidBody);
+		}
+	}
+
+	// Static cubes
+	{
+		float scale = 4.f;
+		glm::vec3 position = glm::vec3(-16.f, 0.f, 16.f);
+		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(45.f), 0.f));
+		RigidBodyDesc desc;
+		desc.isStatic = true;
+		desc.mass = 0.f;
+		desc.position = position;
+		desc.linearVelocity = glm::vec3(0.f);
+		desc.rotation = rotation;
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
+		cMeshObject* cube1 = new cMeshObject();
+		cube1->meshName = "Cube";
+		cube1->friendlyName = "StaticCube";
+		cube1->isWireframe = false;
+		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = rotation;
+		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+		cube1->position = position;
+		cube1->SetUniformScale(scale);
+		g_pMeshObjects.push_back(cube1);
+		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
+		gameObjects.push_back(go);
+		world->AddBody(go->rigidBody);
+	}
+	{
+		float scale = 2.f;
+		glm::vec3 position = glm::vec3(-20.f, 0.f, 20.f);
+		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(65.f), 0.f));
+		RigidBodyDesc desc;
+		desc.isStatic = true;
+		desc.mass = 0.f;
+		desc.position = position;
+		desc.linearVelocity = glm::vec3(0.f);
+		desc.rotation = rotation;
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
+		cMeshObject* cube1 = new cMeshObject();
+		cube1->meshName = "Cube";
+		cube1->friendlyName = "StaticCube";
+		cube1->isWireframe = false;
+		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = rotation;
+		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+		cube1->position = position;
+		cube1->SetUniformScale(scale);
+		g_pMeshObjects.push_back(cube1);
+		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
+		gameObjects.push_back(go);
+		world->AddBody(go->rigidBody);
+	}
+	{
+		float scale = 6.f;
+		glm::vec3 position = glm::vec3(-10.f, 0.f, 6.f);
+		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(15.f), 0.f));
+		RigidBodyDesc desc;
+		desc.isStatic = true;
+		desc.mass = 0.f;
+		desc.position = position;
+		desc.linearVelocity = glm::vec3(0.f);
+		desc.rotation = rotation;
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
+		cMeshObject* cube1 = new cMeshObject();
+		cube1->meshName = "Cube";
+		cube1->friendlyName = "StaticCube";
+		cube1->isWireframe = false;
+		cube1->bUse_RGBA_colour = true;
+		cube1->qRotation = rotation;
+		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+		cube1->position = position;
+		cube1->SetUniformScale(scale);
+		g_pMeshObjects.push_back(cube1);
+		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
+		gameObjects.push_back(go);
+		world->AddBody(go->rigidBody);
+	}
+
+	{
+		float scale = 3.f;
+		glm::vec3 position = glm::vec3(-28.f, 0.f, 10.f);
+		glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(73.f), 0.f));
+		RigidBodyDesc desc;
+		desc.isStatic = true;
+		desc.mass = 0.f;
+		desc.position = position;
+		desc.linearVelocity = glm::vec3(0.f);
+		desc.rotation = rotation;
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
+		cMeshObject* cube1 = new cMeshObject();
+		cube1->meshName = "Cube";
+		cube1->friendlyName = "StaticCube";
+		cube1->isWireframe = false;
+		cube1->qRotation = rotation;
+		cube1->bUse_RGBA_colour = true;
+		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+		cube1->position = position;
+		cube1->SetUniformScale(scale);
+		g_pMeshObjects.push_back(cube1);
+		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
+		gameObjects.push_back(go);
+		world->AddBody(go->rigidBody);
+	}
+
+	{
+		float scale = 3.f;
+		glm::vec3 position = glm::vec3(-10.f, 0.f, 28.f);
+		glm::quat rotation = glm::quat(glm::vec3(0.f, 0.f, 0.f));
+		RigidBodyDesc desc;
+		desc.isStatic = true;
+		desc.mass = 0.f;
+		desc.position = position;
+		desc.linearVelocity = glm::vec3(0.f);
+		desc.rotation = rotation;
+		iShape* cubeShape = new BoxShape(Vector3(scale / 2.f));
+		cMeshObject* cube1 = new cMeshObject();
+		cube1->meshName = "Cube";
+		cube1->friendlyName = "StaticCube";
+		cube1->isWireframe = false;
+		cube1->bUse_RGBA_colour = true;
+		cube1->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+		cube1->position = position;
+		cube1->SetUniformScale(scale);
+		g_pMeshObjects.push_back(cube1);
+		GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cubeShape), cube1);
+		gameObjects.push_back(go);
+		world->AddBody(go->rigidBody);
+	}
+	{
+		// Triangle of cylinders
+		glm::vec3 center = glm::vec3(-20.0f, 0.0f, -20.0f);
+		float spacing = 3.0f;
+		float scale = 1.f;
+		float mass = 15.0f;
+		float halfheight = 0.5f;
+		int numRows = 4;
+		for (int i = 0; i < numRows; i++) {
+			for (int j = 0; j < i + 1; j++) {
+				float xPos = center.x + j * spacing - i * spacing * 0.5f;
+				float yPos = center.y;
+				float zPos = center.z + i * spacing;
+				glm::vec3 position = glm::vec3(xPos, yPos, zPos);
+				RigidBodyDesc desc;
+				desc.isStatic = false;
+				desc.mass = mass;
+				desc.position = position;
+				desc.linearVelocity = glm::vec3(0.f);
+				desc.rotation = glm::quat(glm::vec3(0));
+				iShape* cylinderShape = new CylinderShape(Vector3(scale, halfheight, scale));
+				cMeshObject* cylinder = new cMeshObject();
+				cylinder->meshName = "Cylinder";
+				cylinder->friendlyName = "Cylinder_" + std::to_string(i) + "_" + std::to_string(j);
+				cylinder->isWireframe = false;
+				cylinder->bUse_RGBA_colour = true;
+				cylinder->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+				cylinder->qRotation = glm::quat(glm::vec3(0));
+				cylinder->position = position;
+				cylinder->SetUniformScale(scale);
+				g_pMeshObjects.push_back(cylinder);
+				GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, cylinderShape), cylinder);
+				gameObjects.push_back(go);
+				world->AddBody(go->rigidBody);
+			}
+		}
+	}
+}
+// Create random sphere based on the min max of the position, radius and mass
+void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world,glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass)
+{
+	// Random position between two bounds
+	float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);
+	float y = (float)(std::rand() % (int)(maxBounds.y - minBounds.y + 1) + minBounds.y);
+	float z = (float)(std::rand() % (int)(maxBounds.z - minBounds.z + 1) + minBounds.z);
+	glm::vec3 position(x, y, z);
+	// Random radius and mass using the vec2.x and y as the bounds
+	float rad = ((float)std::rand() / RAND_MAX) * (radius.y - radius.x) + radius.x;
+	float m = ((float)std::rand() / RAND_MAX) * (mass.y - mass.x) + mass.x;
+
+	iShape* ballShape = new SphereShape(rad);
+
+	RigidBodyDesc desc;
+	desc.isStatic = false;
+	desc.mass = m;
+	desc.position = position;
+	desc.linearVelocity = glm::vec3(0.f);
+	desc.rotation = glm::quat(glm::vec3(0));
+
+	cMeshObject* ball = new cMeshObject();
+	ball->meshName = "ISO_Sphere_1";
+	ball->friendlyName = "randomBall";
+	ball->isWireframe = false;
+	ball->bUse_RGBA_colour = true;
+	ball->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+	ball->SetUniformScale(rad);
+	GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, ballShape), ball);
+	world->AddBody(go->rigidBody);
+	randomBalls.push_back(go);
 }

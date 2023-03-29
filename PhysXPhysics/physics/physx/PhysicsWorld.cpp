@@ -27,7 +27,6 @@ namespace physics
 		mPvd->connect(*mTransport, physx::PxPvdInstrumentationFlag::eALL);
 		mToleranceScale.length = 100;        // typical length of an object
 		mToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
-		//mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale(),true, mPvd);
 		mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale, true, mPvd);
 		physx::PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
 		sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
@@ -44,15 +43,6 @@ namespace physics
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
 		mMaterial = mPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-
-		float platformSize = 32.0f;
-		physx::PxVec3 platformDimensions(platformSize, 1.0f, platformSize);
-		physx::PxTransform platformTransform(physx::PxVec3(0.0f, -1.0f, 0.0f));
-		physx::PxShape* platformShape = mPhysics->createShape(physx::PxBoxGeometry(platformDimensions), *mMaterial);
-		physx::PxRigidStatic* platformActor = mPhysics->createRigidStatic(platformTransform);
-		platformActor->attachShape(*platformShape);
-		mScene->addActor(*platformActor);
-		platformShape->release();
 	}
 
 	PhysicsWorld::~PhysicsWorld(void)

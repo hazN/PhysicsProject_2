@@ -186,7 +186,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MoveTo.cpp" />
     <ClCompile Include="OrientTo.cpp" />
-    <ClCompile Include="PhysXPhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIBrain.h" />
@@ -233,7 +232,6 @@
     <ClInclude Include="JSONPersitence.h" />
     <ClInclude Include="MoveTo.h" />
     <ClInclude Include="OrientTo.h" />
-    <ClInclude Include="PhysXPhysics.h" />
     <ClInclude Include="quaternion_utils.h" />
   </ItemGroup>
   <ItemGroup>

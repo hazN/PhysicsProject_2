@@ -38,30 +38,6 @@ namespace physics
 		}
 		originalPosition = desc.position;
 		originalRotation = desc.rotation;
-		// will add if statements to check shape
-		//physx::PxRigidActor* rigidActor;
-		//physx::PxTransform transform(physx::PxVec3(desc.position.x, desc.position.y, desc.position.z), physx::PxQuat(desc.rotation.x, desc.rotation.y, desc.rotation.z, desc.rotation.w));
-		//if (m_Shape->GetShapeType() == ShapeType::Sphere)
-		//{
-		//	SphereShape* sphereShape = (SphereShape*)m_Shape;
-		//	pShape = PhysicsWorld::mPhysics->createShape(physx::PxSphereGeometry(sphereShape->GetRadius()), *PhysicsWorld::mMaterial);
-		//}
-		//else if (m_Shape->GetShapeType() == ShapeType::Box)
-		//{
-		//	BoxShape* boxShape = (BoxShape*)m_Shape;
-		//	physx::PxVec3 halfExtents(boxShape->GetHalfExtents().x, boxShape->GetHalfExtents().y, boxShape->GetHalfExtents().z);
-		//	pShape = PhysicsWorld::mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *PhysicsWorld::mMaterial);
-		//}
-		//else if (m_Shape->GetShapeType() == ShapeType::Cylinder)
-		//{
-		//	CylinderShape* cylinderShape = (CylinderShape*)m_Shape;
-		//	pShape = PhysicsWorld::mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *PhysicsWorld::mMaterial);
-
-		//}
-		//if (m_IsStatic)
-		//	rigidActor = PhysicsWorld::mPhysics->createRigidStatic(transform);
-		//else rigidActor = PhysicsWorld::mPhysics->createRigidDynamic(transform);
-		//rigidActor->attachShape(*pShape);
 	}
 	RigidBody::~RigidBody(void)
 	{
@@ -71,11 +47,6 @@ namespace physics
 	{
 		return m_IsStatic;
 	}
-
-	//void RigidBody::setWorld(PhysicsWorld* world)
-	//{
-	//	PhysicsWorld::mWorld = world;
-	//}
 
 	iShape* RigidBody::GetShape(void)
 	{
@@ -126,7 +97,6 @@ namespace physics
 			physx::PxRigidDynamic* dynamicActor = (physx::PxRigidDynamic*)rigidBody;
 			dynamicActor->addForce(forceVec, physx::PxForceMode::eACCELERATION);
 		}
-		std::cout << "position: " << rigidBody->getGlobalPose().p.x << ", " << rigidBody->getGlobalPose().p.y << ", " << rigidBody->getGlobalPose().p.z << std::endl;
 	}
 
 	void RigidBody::ApplyForceAtPoint(const glm::vec3& force, const glm::vec3& relativePoint)

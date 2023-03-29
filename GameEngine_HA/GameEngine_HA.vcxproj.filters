@@ -61,7 +61,7 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{bee1fa1c-4bf1-4d2f-a54e-5ddcb05360de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Physics\LuaBrain">
+    <Filter Include="LuaBrain">
       <UniqueIdentifier>{aa414f34-98a4-4eb3-bdde-3a6f143c2ff2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -151,7 +151,7 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="cLuaBrain.cpp">
-      <Filter>Physics\LuaBrain</Filter>
+      <Filter>LuaBrain</Filter>
     </ClCompile>
     <ClCompile Include="MoveTo.cpp">
       <Filter>Commands</Filter>
@@ -182,9 +182,6 @@
     </ClCompile>
     <ClCompile Include="JSONPersitence.cpp">
       <Filter>savedata</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysXPhysics.cpp">
-      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -282,7 +279,7 @@
       <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="cLuaBrain.h">
-      <Filter>Physics\LuaBrain</Filter>
+      <Filter>LuaBrain</Filter>
     </ClInclude>
     <ClInclude Include="MoveTo.h">
       <Filter>Commands</Filter>
@@ -321,9 +318,6 @@
       <Filter>savedata</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\GameObject.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysXPhysics.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
