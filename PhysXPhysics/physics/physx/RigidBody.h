@@ -43,6 +43,8 @@ namespace physics
 		virtual void ApplyTorqueImpulse(const glm::vec3& torqueImpulse) override;
 		physx::PxRigidActor* rigidBody = nullptr;
 		physx::PxShape* pShape = nullptr;
+		Vector3 originalPosition;
+		Quaternion originalRotation;
 	protected:
 
 	private:
