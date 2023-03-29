@@ -863,6 +863,7 @@ int main(int argc, char* argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+		world->TimeStep(0.1f);
 		//physics->Update();
 		for (GameObject* go : gameObjects)
 		{
@@ -950,7 +951,7 @@ int main(int argc, char* argv[])
 			}
 			//add to ballactor2 force from direction
 			//physx::PxVec3 forceVec(direction.x* force, direction.y* force, direction.z* force);
-			PlayerBall->rigidBody->ApplyForce(Vector3(direction.x, direction.y, direction.z));
+			PlayerBall->rigidBody->ApplyForce(Vector3(direction.x * force, direction.y * force, direction.z * force));
 			//ball2Actor->addForce(forceVec, physx::PxForceMode::eACCELERATION);
 			//physicObjects[ballIndex]->rigidBody->ApplyForce(direction * force);
 		}

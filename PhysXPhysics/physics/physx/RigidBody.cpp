@@ -4,6 +4,7 @@
 #include <Interface/BoxShape.h>
 #include <Interface/SphereShape.h>
 #include <Interface/CylinderShape.h>
+#include <iostream>
 
 namespace physics
 {
@@ -125,6 +126,7 @@ namespace physics
 			physx::PxRigidDynamic* dynamicActor = (physx::PxRigidDynamic*)rigidBody;
 			dynamicActor->addForce(forceVec, physx::PxForceMode::eACCELERATION);
 		}
+		std::cout << "position: " << rigidBody->getGlobalPose().p.x << ", " << rigidBody->getGlobalPose().p.y << ", " << rigidBody->getGlobalPose().p.z << std::endl;
 	}
 
 	void RigidBody::ApplyForceAtPoint(const glm::vec3& force, const glm::vec3& relativePoint)

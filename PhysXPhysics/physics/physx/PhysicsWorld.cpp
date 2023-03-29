@@ -44,6 +44,15 @@ namespace physics
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
 		mMaterial = mPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+
+		float platformSize = 32.0f;
+		physx::PxVec3 platformDimensions(platformSize, 1.0f, platformSize);
+		physx::PxTransform platformTransform(physx::PxVec3(0.0f, -1.0f, 0.0f));
+		physx::PxShape* platformShape = mPhysics->createShape(physx::PxBoxGeometry(platformDimensions), *mMaterial);
+		physx::PxRigidStatic* platformActor = mPhysics->createRigidStatic(platformTransform);
+		platformActor->attachShape(*platformShape);
+		mScene->addActor(*platformActor);
+		platformShape->release();
 	}
 
 	PhysicsWorld::~PhysicsWorld(void)
@@ -94,7 +103,8 @@ namespace physics
 			}
 			if (rigidBody->IsStatic())
 				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidStatic(transform);
-			else rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidDynamic(transform);
+			else
+				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidDynamic(transform);
 			rigidBody->rigidBody->attachShape(*rigidBody->pShape);
 			mActors.push_back((iRigidBody*)rigidBody);
 			mScene->addActor(*rigidBody->rigidBody);
