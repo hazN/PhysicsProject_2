@@ -976,7 +976,6 @@ int main(int argc, char* argv[])
 					go->rigidBody = nullptr;
 				}
 				world->ResetWorld();
-				//physics->Reset();
 			}
 			if (glfwGetKey(window, GLFW_KEY_KP_1) && duration > 0.3f)
 			{
@@ -1013,7 +1012,6 @@ int main(int argc, char* argv[])
 				ball->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 				ball->SetUniformScale(rad);
 				GameObject* go = new GameObject(_physicsFactory->CreateRigidBody(desc, ballShape), ball);
-				gameObjects.push_back(go);
 				world->AddBody(go->rigidBody);
 				randomBalls.push_back(go);
 			}

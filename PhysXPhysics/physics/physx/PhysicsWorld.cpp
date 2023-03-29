@@ -153,6 +153,12 @@ namespace physics
 			physx::PxTransform originalTransform;
 			physx::PxVec3 originalVelocity;
 			originalTransform = mOriginalTransforms[actor->rigidBody];
+			if (!actor->IsStatic())
+			{
+				physx::PxRigidDynamic* dynamicActor = (physx::PxRigidDynamic*)actor->rigidBody;
+				dynamicActor->setLinearVelocity(physx::PxVec3(0.0f));
+				dynamicActor->setAngularVelocity(physx::PxVec3(0.0f));
+			}
 			actor->rigidBody->setGlobalPose(originalTransform);
 		}
 	}
