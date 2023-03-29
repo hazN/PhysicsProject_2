@@ -23,7 +23,7 @@ namespace physics
 
 		bool IsStatic(void) const;
 
-		void setWorld(PhysicsWorld* world);
+		//void setWorld(PhysicsWorld* world);
 		//virtual void GetWorldTransform(glm::mat4& transformOut) override;
 
 		virtual void GetPosition(glm::vec3& positionOut) override;
@@ -41,8 +41,8 @@ namespace physics
 
 		virtual void ApplyTorque(const glm::vec3& torque) override;
 		virtual void ApplyTorqueImpulse(const glm::vec3& torqueImpulse) override;
-		physx::PxRigidActor* rigidBody;
-		physx::PxShape* pShape;
+		physx::PxRigidActor* rigidBody = nullptr;
+		physx::PxShape* pShape = nullptr;
 	protected:
 
 	private:
@@ -72,6 +72,5 @@ namespace physics
 		Vector3* m_RenderPosition;
 		RigidBody(const RigidBody& other) { ; }
 		RigidBody& operator=(const RigidBody& other) { return *this; }
-		static PhysicsWorld* _world;
 	};
 };

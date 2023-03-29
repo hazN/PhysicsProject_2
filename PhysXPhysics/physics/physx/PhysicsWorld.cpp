@@ -11,6 +11,10 @@
 
 namespace physics
 {
+	physx::PxPhysics* PhysicsWorld::mPhysics = nullptr;
+	physx::PxScene* PhysicsWorld::mScene = nullptr;
+	physx::PxMaterial* PhysicsWorld::mMaterial = nullptr;
+
 	PhysicsWorld::PhysicsWorld(void)
 	{
 		mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);

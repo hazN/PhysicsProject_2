@@ -41,23 +41,23 @@ namespace physics
 		if (m_Shape->GetShapeType() == ShapeType::Sphere)
 		{
 			SphereShape* sphereShape = (SphereShape*)m_Shape;
-			pShape = _world->mPhysics->createShape(physx::PxSphereGeometry(sphereShape->GetRadius()), *_world->mMaterial);
+			pShape = PhysicsWorld::mPhysics->createShape(physx::PxSphereGeometry(sphereShape->GetRadius()), *PhysicsWorld::mMaterial);
 		}
 		else if (m_Shape->GetShapeType() == ShapeType::Box)
 		{
 			BoxShape* boxShape = (BoxShape*)m_Shape;
 			physx::PxVec3 halfExtents(boxShape->GetHalfExtents().x, boxShape->GetHalfExtents().y, boxShape->GetHalfExtents().z);
-			pShape = _world->mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *_world->mMaterial);
+			pShape = PhysicsWorld::mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *PhysicsWorld::mMaterial);
 		}
 		else if (m_Shape->GetShapeType() == ShapeType::Cylinder)
 		{
 			CylinderShape* cylinderShape = (CylinderShape*)m_Shape;
-			pShape = _world->mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *_world->mMaterial);
+			pShape = PhysicsWorld::mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *PhysicsWorld::mMaterial);
 
 		}
 		if (m_IsStatic)
-			rigidActor = _world->mPhysics->createRigidStatic(transform);
-		else rigidActor = _world->mPhysics->createRigidDynamic(transform);
+			rigidActor = PhysicsWorld::mPhysics->createRigidStatic(transform);
+		else rigidActor = PhysicsWorld::mPhysics->createRigidDynamic(transform);
 		rigidActor->attachShape(*pShape);
 	}
 	RigidBody::~RigidBody(void)
@@ -69,10 +69,10 @@ namespace physics
 		return m_IsStatic;
 	}
 
-	void RigidBody::setWorld(PhysicsWorld* world)
-	{
-		_world = world;
-	}
+	//void RigidBody::setWorld(PhysicsWorld* world)
+	//{
+	//	PhysicsWorld::mWorld = world;
+	//}
 
 	iShape* RigidBody::GetShape(void)
 	{

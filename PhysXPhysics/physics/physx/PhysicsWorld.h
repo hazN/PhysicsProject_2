@@ -59,9 +59,9 @@ namespace physics
 			m_CollisionListener = listener;
 		}
 
-		physx::PxPhysics* mPhysics = NULL;
-		physx::PxScene* mScene = NULL;
-		physx::PxMaterial* mMaterial = NULL;
+		static physx::PxPhysics* mPhysics;
+		static physx::PxScene* mScene;
+		static physx::PxMaterial* mMaterial;
 	private:
 		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
 		physx::PxDefaultErrorCallback  mDefaultErrorCallback;

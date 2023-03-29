@@ -32,6 +32,11 @@
     <ClCompile Include="physics\physx\RigidBody.cpp" />
     <ClCompile Include="physics\physx\SoftBody.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PhysicsInterface\PhysicsInterface.vcxproj">
+      <Project>{f0d37666-094e-44b8-a022-cb25c056c0c5}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

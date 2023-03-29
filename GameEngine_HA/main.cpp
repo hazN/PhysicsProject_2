@@ -737,6 +737,7 @@ int main(int argc, char* argv[])
 		desc.rotation = glm::quat(glm::vec3(0));
 		PlayerBall->rigidBody = _physicsFactory->CreateRigidBody(desc, ballShape);
 	}
+	world->AddBody(PlayerBall->rigidBody);
 	gameObjects.push_back(PlayerBall);
 	//gameObjects.push_back(new GameObject(ball1Actor, pBall2));
 	//// Stacked cubes
